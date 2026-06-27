@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>은율이의 쇄골 대작전</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070708;        /* 거의 블랙 */
+    --ink:#f3f3f5;       /* 본문 */
+    --muted:rgba(255,255,255,.55);
+    --point:#ff3b3b;     /* 포인트 레드 */
+    --point-2:#ff665e;   /* 밝은 레드(그라데이션) */
+    --point-ink:#ff6b6b; /* 블랙 위 강조 텍스트용(밝게) */
+    --glass:rgba(255,255,255,.06);
+    --glass-2:rgba(255,255,255,.1);
+    --glass-bd:rgba(255,255,255,.16);
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ height:100%; margin:0; }
+  body{
+    background:linear-gradient(180deg, #101013, var(--bg));
+    color:var(--ink);
+    font-family:'Gowun Dodum', sans-serif;
+    -webkit-user-select:none; user-select:none;
+    overflow:hidden;
+  }
+
+  #app{ height:100dvh; position:relative; z-index:1; overflow:hidden; }
+
+  /* ─── 화면 전환 ─── */
+  .screen{ display:none; position:absolute; inset:0; padding:24px; }
+  .screen.on{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; }
+
+  /* ─── 타이포 ─── */
+  h1{ font-family:'Jua', sans-serif; font-weight:400; margin:0; line-height:1.2; }
+  .sub{ color:var(--muted); font-size:16px; margin:0; }
+  .point{ color:var(--point-ink); }
+  strong{ color:var(--point-ink); font-weight:inherit; }
+
+  /* ─── 직접 만든 SVG 아이콘 ─── */
+  .ico{ width:1em; height:1em; fill:currentColor; vertical-align:-0.14em; }
+
+  /* ─── 리퀴드 글라스 공통 ─── */
+  .glass{
+    position:relative;
+    background:var(--glass);
+    -webkit-backdrop-filter:blur(22px) saturate(180%);
+    backdrop-filter:blur(22px) saturate(180%);
+    border:1px solid var(--glass-bd);
+    box-shadow:
+      0 18px 50px -16px rgba(0,0,0,.7),
+      inset 0 1px 0 rgba(255,255,255,.35),
+      inset 0 -10px 24px -16px rgba(255,255,255,.12);
+    overflow:hidden;
+  }
+  /* 위쪽 스펙큘러 하이라이트 (유리 광택) */
+  .glass::before{
+    content:""; position:absolute; left:0; right:0; top:0; height:55%;
+    background:linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,0));
+    pointer-events:none;
+  }
+
+  /* ─── 버튼 (레드 글라스) ─── */
+  .btn{
+    position:relative; font-family:'Jua', sans-serif; font-size:18px;
+    display:inline-flex; align-items:center; gap:8px;
+    color:#fff; cursor:pointer;
+    padding:15px 26px; border-radius:18px;
+    border:1px solid rgba(255,255,255,.28);
+    background:linear-gradient(180deg, var(--point-2), var(--point));
+    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+    box-shadow:
+      0 10px 22px -10px rgba(0,0,0,.7),
+      inset 0 1px 0 rgba(255,255,255,.5),
+      inset 0 -8px 16px -10px rgba(0,0,0,.4);
+    transition:transform .08s ease, box-shadow .2s ease;
+  }
+  .btn:active{ transform:translateY(2px); box-shadow:0 5px 14px -10px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.5); }
+  .btn.soft{
+    background:var(--glass-2); color:#fff;
+    -webkit-backdrop-filter:blur(18px) saturate(160%); backdrop-filter:blur(18px) saturate(160%);
+    box-shadow:0 12px 30px -12px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.3);
+  }
+  .btn:focus-visible{ outline:3px solid var(--point); outline-offset:3px; }
+
+  /* ─── 카드(글라스) ─── */
+  .card{ border-radius:24px; padding:28px; }
+
+  /* ─── 히어로(타이틀/엔딩) ─── */
+  .hero{ text-align:center; max-width:460px; }
+  .hero h1{ font-size:32px; margin-top:18px; }
+  .hero .sub{ margin-top:8px; }
+  .hero .btn{ margin-top:26px; }
+
+  /* 타이틀 뼈 일러스트 */
+  .bone-art{ width:150px; height:auto; display:block; color:var(--point); }
+  @keyframes bob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-8px); } }
+  .bob{ animation:bob 2.6s ease-in-out infinite; }
+
+  /* ─── 스토리 ─── */
+  .story{ width:100%; max-width:560px; }
+  .story .card-head{
+    display:flex; align-items:center; gap:10px;
+    font-family:'Jua'; font-size:18px; color:var(--point-ink); margin-bottom:14px;
+  }
+  .story .card-head .ico{ font-size:22px; }
+  .story p{ margin:0 0 14px; font-size:17px; line-height:1.85; word-break:keep-all; }
+  .story p:last-child{ margin-bottom:0; }
+  .story .quote{ color:var(--point-ink); font-size:18px; }
+  .story-side{ display:none; }
+  .story-actions{ display:flex; justify-content:center; margin-top:20px; }
+
+  /* ─── 게임 ─── */
+  #game{ padding:0; }
+  #game.on{ display:none; }
+  #game.play{ display:flex; flex-direction:column; }
+  .scorebar{
+    z-index:5; margin:14px; margin-top:calc(14px + env(safe-area-inset-top));
+    border-radius:18px; padding:14px 18px;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    font-family:'Jua'; font-size:20px;
+  }
+  .scorebar .ico{ color:var(--point); font-size:22px; }
+  .scorebar #score{ color:var(--point-ink); }
+  .scorebar .quit{
+    position:absolute; right:24px;
+    font-family:'Gowun Dodum'; font-size:14px; color:var(--muted);
+    background:rgba(255,255,255,.08); border:1px solid var(--glass-bd); border-radius:10px;
+    padding:6px 12px; cursor:pointer;
+  }
+  .field{ position:relative; flex:1; overflow:hidden; }
+
+  .bone-piece{ position:absolute; top:-10%; width:56px; cursor:pointer; z-index:3; color:var(--point); }
+  .bone-piece.gold{ color:#ffd400; }            /* 노란 2점 뼈 */
+  .bone-piece svg{ width:100%; height:auto; display:block;
+    filter:drop-shadow(0 2px 3px rgba(0,0,0,.5)); }
+  .bone-piece.got{ animation:got .18s ease forwards; }
+  @keyframes got{ to{ transform:scale(1.6); opacity:0; } }
+  .plus{
+    position:absolute; z-index:6; pointer-events:none;
+    font-family:'Jua'; color:var(--point-ink); font-size:20px;
+    animation:plus .55s ease-out forwards;
+  }
+  .plus.gold{ color:#ffd400; }
+  @keyframes plus{ from{ transform:translateY(0); opacity:1; } to{ transform:translateY(-34px); opacity:0; } }
+
+  .desk-hint{ display:none; }
+
+  /* ═══════════ 데스크탑(≥760px) — 배치 다르게 ═══════════ */
+  @media (min-width:760px){
+    #title.on, #end.on{ flex-direction:row; gap:50px; }
+    #title .hero, #end .hero{ text-align:left; }
+    #title .bone-art, #end .art-wrap{ flex:0 0 auto; }
+    #title .bone-art{ width:230px; }
+    .hero h1{ font-size:40px; }
+    .hero .sub{ font-size:18px; }
+
+    #story.on{ display:grid; grid-template-columns:240px 1fr; gap:34px;
+      align-items:center; max-width:880px; margin:0 auto; }
+    .story{ max-width:none; }
+    .story-side{ display:flex; align-items:center; justify-content:center; }
+    .story-side svg{ width:200px; height:auto; color:var(--point); }
+    .story-actions{ justify-content:flex-start; }
+
+    /* 게임: 점수를 왼쪽 위로 */
+    .scorebar{ position:absolute; top:18px; left:18px; margin:0; z-index:10; font-size:19px; }
+    .scorebar .quit{ position:static; margin-left:6px; right:auto; }
+    .field{ position:absolute; inset:0; }
+    .desk-hint{ display:block; position:absolute; right:22px; bottom:22px; z-index:10; color:var(--muted); font-size:15px; }
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .bob,.bone-piece,.plus{ animation:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════ SVG 아이콘 정의 (직접 제작) ════ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-bone" viewBox="0 0 64 32">
+      <g fill="currentColor">
+        <circle cx="12" cy="11" r="9"/><circle cx="12" cy="21" r="9"/>
+        <circle cx="52" cy="11" r="9"/><circle cx="52" cy="21" r="9"/>
+        <rect x="9" y="9.5" width="46" height="13" rx="6.5"/>
+      </g>
+    </symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M12 1c.6 5.4 1.9 6.7 9 7.3-7.1.6-8.4 1.9-9 7.3-.6-5.4-1.9-6.7-9-7.3 7.1-.6 8.4-1.9 9-7.3z" transform="translate(0 2.7)"/>
+    </symbol>
+    <symbol id="i-dash" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+        <path d="M3 8h15"/><path d="M5 13h13"/><path d="M3 18h10"/>
+      </g>
+    </symbol>
+    <symbol id="i-burst" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M12 1.5l2.3 5.1 4.9-2.6-2.1 5.2 5.5.5-4.4 3.3 3.4 4.3-5.3-1.6-.7 5.5-3.5-4.3-3.5 4.3-.7-5.5-5.3 1.6 3.4-4.3L1.5 9.7l5.5-.5L4.9 4l4.9 2.6z"/>
+    </symbol>
+    <symbol id="i-party" viewBox="0 0 24 24">
+      <g fill="currentColor">
+        <path d="M2.5 21.5l5-14.5 9.5 9.5z"/>
+        <circle cx="16" cy="4" r="1.4"/><circle cx="20" cy="8.5" r="1.4"/>
+        <circle cx="13.5" cy="3" r="1.1"/><circle cx="21" cy="4.5" r="1.1"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<div id="app">
+
+  <!-- ════ 타이틀 ════ -->
+  <section id="title" class="screen on">
+    <svg class="bone-art bob" viewBox="0 0 64 38" aria-hidden="true">
+      <use href="#i-bone"/>
+      <path d="M30 8 L34 30" fill="none" stroke="#fff" stroke-width="2.4" stroke-dasharray="3 3"/>
+    </svg>
+    <div class="hero">
+      <h1>은율이의 쇄골 대작전</h1>
+      <p class="sub">부러진 뼈를 조립하자!</p>
+      <button class="btn" onclick="show('story')">
+        <svg class="ico"><use href="#i-bone"/></svg> 은율이 쇄골 접합하기
+      </button>
+    </div>
+  </section>
+
+  <!-- ════ 사연(동화) ════ -->
+  <section id="story" class="screen">
+    <div class="story-side" aria-hidden="true">
+      <svg viewBox="0 0 64 38">
+        <use href="#i-bone"/>
+        <path d="M30 8 L34 30" fill="none" stroke="#fff" stroke-width="2.4" stroke-dasharray="3 3"/>
+      </svg>
+    </div>
+    <div class="story">
+      <div class="card glass">
+        <div class="card-head"><svg class="ico"><use href="#i-spark"/></svg> 은율이 이야기</div>
+        <p>옛날 옛적 어느 날, 키와 덩치 모두 작지 않은 <strong>폭풍의 은율이</strong>가 살고 있었어요~ <svg class="ico point"><use href="#i-spark"/></svg></p>
+        <p>하지만 평화롭던 어느 날 체육 시간… 운명의 <strong>‘뜀틀’</strong>을 마주하게 되었답니다! <svg class="ico point"><use href="#i-dash"/></svg></p>
+        <p>은율이는 뜀틀에 엄청난 자신이 있었는지, 마치 빛의 속도로 번개처럼 달려갔어요!</p>
+        <p class="quote">“내가 지리는거 보여드림ㅋ”</p>
+        <p>…하고 멋지게 날아오를 줄 알았으나? 그대로 발이 꼬여서 <strong>자빠졌지 뭐예요?!!</strong> <svg class="ico point"><use href="#i-burst"/></svg></p>
+        <p>콰당탕탕! 소리와 함께 은율이의 소중한 쇄골이 강남스타일을 추며 분리되었습니다…</p>
+        <p>하늘에서 떨어지는 은율이의 쇄골 파편 <strong>50개</strong>를 터치해서 은율이의 쇄골을 합체시키세요~</p>
+      </div>
+      <div class="story-actions">
+        <button class="btn" onclick="startGame()">접합하러 가기</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 게임 ════ -->
+  <section id="game" class="screen">
+    <div class="scorebar glass">
+      <svg class="ico"><use href="#i-bone"/></svg>
+      접합 성공: <span id="score">0</span> / 50
+      <button class="quit" onclick="quit()">수술포기</button>
+    </div>
+    <div class="field" id="field"></div>
+    <div class="desk-hint">떨어지는 쇄골을 클릭하세요!/div>
+  </section>
+
+  <!-- ════ 엔딩 ════ -->
+  <section id="end" class="screen">
+    <div class="art-wrap" aria-hidden="true">
+      <svg class="bone-art bob" viewBox="0 0 64 32"><use href="#i-bone"/></svg>
+    </div>
+    <div class="hero">
+      <h1>
+        <svg class="ico" style="color:var(--point)"><use href="#i-party"/></svg>
+        수술 성공!
+        <svg class="ico" style="color:var(--point)"><use href="#i-party"/></svg>
+      </h1>
+      <div class="card glass" style="margin-top:18px; text-align:left;">
+        <p style="margin:0; font-size:17px; line-height:1.8;">
+          축하합니다! 당신의 신들린 터치 덕분에 은율이의 쇄골이 <strong>원래 자리</strong>를 되찾았습니다!
+          이제 은율이는 다시는 뜀틀 앞에서 까불지 않겠다고 눈물을 흘리며 다짐했답니다.
+          <svg class="ico point"><use href="#i-bone"/></svg> <svg class="ico point"><use href="#i-spark"/></svg>
+        </p>
+        <p class="sub" style="margin:14px 0 0; color:var(--point-ink); font-size:15px;">
+          (은율아 앞으론 조심하렴~ - 니 친구 young진이가)
+        </p>
+      </div>
+      <button class="btn soft" onclick="show('title')">재수술 하기</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+"use strict";
+var TARGET = 50, score = 0, timer = null;
+var field = document.getElementById('field');
+var scoreEl = document.getElementById('score');
+
+/* ─── 효과음 (겹쳐 재생되게 clone 후 재생) ─── */
+function mkAudio(src){ var a = new Audio(src); a.preload = 'auto'; return a; }
+var sfxHit   = mkAudio('옵.mp3');       // 일반 뼈
+var sfxGold  = mkAudio('헤ㅔ.mp3');      // 노란(2점) 뼈
+var sfxClear = mkAudio('인간여쨔.mp3');   // 클리어
+var sfxNav   = mkAudio('어허ㅓㅓ.mp3');   // 화면 이동
+function playSfx(a, vol){
+  try{ var c = a.cloneNode(); c.volume = (vol == null ? 0.9 : vol); c.play().catch(function(){}); }catch(e){}
+}
+
+function show(id){
+  if(id !== 'end') playSfx(sfxNav);       // 메뉴/화면 이동 효과음 (클리어 연출은 제외)
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('on','play'); });
+  document.getElementById(id).classList.add(id === 'game' ? 'play' : 'on');
+}
+
+function startGame(){
+  score = 0; scoreEl.textContent = 0;
+  field.innerHTML = '';
+  show('game');
+  clearInterval(timer);
+  timer = setInterval(spawn, 580);
+  spawn();
+}
+function quit(){ clearInterval(timer); show('title'); }
+
+function spawn(){
+  var gold = Math.random() < 0.18;           // 약 18% 확률로 노란 2점 뼈
+  var b = document.createElement('div');
+  b.className = 'bone-piece' + (gold ? ' gold' : '');
+  b.innerHTML = '<svg viewBox="0 0 64 32"><use href="#i-bone"/></svg>';
+  var w = field.clientWidth, h = field.clientHeight;
+  var x = Math.random() * (w - 56);
+  var rot = (Math.random() * 60 - 30);
+  var dur = 2.6 + Math.random() * 2.4;
+  b.style.left = x + 'px';
+  b.style.width = (44 + Math.random() * 26) + 'px';
+  field.appendChild(b);
+
+  var start = null;
+  function drop(t){
+    if(!b.parentElement || b.dataset.got) return;
+    if(start === null) start = t;
+    var p = (t - start) / (dur * 1000);
+    if(p >= 1){ b.remove(); return; }            // 놓침
+    b.style.top = (-10 + p * 118) + '%';
+    b.style.transform = 'rotate(' + rot + 'deg)';
+    requestAnimationFrame(drop);
+  }
+  requestAnimationFrame(drop);
+
+  function grab(e){
+    e.preventDefault();
+    if(b.dataset.got) return;
+    b.dataset.got = '1';
+    var pts = gold ? 2 : 1;
+    playSfx(gold ? sfxGold : sfxHit);            // ← 맞으면 효과음 (노란뼈는 헤ㅔ)
+
+    var fr = field.getBoundingClientRect(), r = b.getBoundingClientRect();
+    var plus = document.createElement('div');
+    plus.className = 'plus' + (gold ? ' gold' : '');
+    plus.textContent = '+' + pts;
+    plus.style.left = (r.left - fr.left + 14) + 'px';
+    plus.style.top = (r.top - fr.top) + 'px';
+    field.appendChild(plus);
+    setTimeout(function(){ plus.remove(); }, 560);
+
+    b.classList.add('got');
+    setTimeout(function(){ b.remove(); }, 180);
+
+    score += pts; scoreEl.textContent = Math.min(score, TARGET);
+    if(score >= TARGET){
+      clearInterval(timer);
+      playSfx(sfxClear, 1);                       // ← 클리어 효과음 (인간여쨔)
+      setTimeout(function(){ show('end'); }, 350);
+    }
+  }
+  b.addEventListener('touchstart', grab, {passive:false});
+  b.addEventListener('mousedown', grab);
+}
+</script>
+</body>
+</html>
