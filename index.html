@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>은율이의 쿵쾅쿵쾅 쇄골 모험</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DungGeunMo&display=swap');
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a2e;
+            color: #ffffff;
+            font-family: 'DungGeunMo', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 450px;
+            height: 100%;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .active {
+            display: flex;
+        }
+
+        /* 공통 버튼 스타일 */
+        .btn {
+            background-color: #e94560;
+            color: white;
+            border: 4px solid #fff;
+            padding: 15px 30px;
+            font-size: 20px;
+            font-family: 'DungGeunMo', sans-serif;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px #0f3460;
+            image-rendering: pixelated;
+        }
+
+        .btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #0f3460;
+        }
+
+        /* 1단계: 메인 화면 */
+        #title-svg {
+            width: 200px;
+            height: 100px;
+            margin-bottom: 30px;
+            animation: floating 2s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* 2단계: 동화 화면 */
+        .story-box {
+            background: rgba(15, 52, 96, 0.8);
+            border: 4px solid #e94560;
+            border-radius: 10px;
+            padding: 25px;
+            font-size: 18px;
+            line-height: 1.8;
+            word-break: keep-all;
+            margin-bottom: 30px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        /* 3단계: 게임 화면 */
+        #game-canvas {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .game-ui {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            font-size: 24px;
+            background: rgba(0,0,0,0.6);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 2px solid #fff;
+            pointer-events: none;
+        }
+
+        .falling-bone {
+            position: absolute;
+            width: 60px;
+            height: 40px;
+            cursor: pointer;
+            z-index: 5;
+            transition: transform 0.1s ease;
+        }
+
+        /* 4단계: 엔딩 화면 */
+        .ending-title {
+            font-size: 32px;
+            color: #4ecca3;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="main-screen" class="screen active">
+        <h1 style="font-size: 28px; margin-bottom: 10px;">은율이의 쇄골 대작전</h1>
+        <p style="color: #95a5a6; margin-bottom: 30px;">부러진 뼈를 조립하자!</p>
+        
+        <svg id="title-svg" viewBox="0 0 100 50">
+            <path d="M10,25 Q30,10 50,25 T90,25" fill="none" stroke="#e0e0e0" stroke-width="8" stroke-linecap="round"/>
+            <path d="M48,15 L52,35" fill="none" stroke="#e94560" stroke-width="4" stroke-dasharray="4"/>
+            <circle cx="50" cy="25" r="6" fill="#e94560" />
+        </svg>
+
+        <button class="btn" onclick="nextScreen('story-screen')">🦴 은율이 쇄골 접합하기</button>
+    </div>
+
+    <div id="story-screen" class="screen">
+        <div class="story-box">
+            옛날 옛적 어느 날, <br>
+            키와 장난기 모두 작지 않은 <br>
+            <strong>폭풍의 은율이</strong>가 살고 있었어요~ ✨<br><br>
+            
+            하지만 평화롭던 어느 날 체육 시간...<br>
+            운명의 <strong>'뜀틀'</strong>을 마주하게 되었답니다! 🏃‍♂️💨<br><br>
+            
+            은율이는 뜀틀에 엄청난 자신이 있었는지,<br>
+            마치 빛의 속도로 번개처럼 달려갔어요!<br><br>
+            
+            <strong>"내가 김서린 빙의 해볼게 ㅋㅋ"</strong><br><br>
+            
+            ...하고 멋지게 날아오를 줄 알았으나?<br>
+            그대로 발이 꼬여서 <strong>자빠졌지 뭐예요?!!</strong> 💥<br><br>
+            
+            콰당탕탕! 소리와 함께 <br>
+            은율이의 소중한 쇄골이 훌라춤을 추며 분리되었습니다...<br><br>
+            
+            하늘에서 떨어지는 은율이의 쇄골 파편 50개를 터치해서<br>
+            은율이의 쇄골을 합체시키세요
+        </div>
+        <button class="btn" onclick="startGame()">복구 작업 시작하기!</button>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <div class="game-ui">접합 성공: <span id="score">0</span> / 50</div>
+        <div id="game-canvas"></div>
+    </div>
+
+    <div id="ending-screen" class="screen">
+        <h1 class="ending-title">🎉 앙까라쇄골 앙까라쇄골 앙~ 🎉</h1>
+        <div class="story-box" style="font-size: 20px;">
+            축하합니다!<br>
+            당신의 신들린 터치 덕분에 은율이의 쇄골이 원래 자리를 되찾았습니다! <br><br>
+            이제 은율이는 다시는 뜀틀 앞에서 까불지 않겠다고 눈물을 흘리며 다짐했답니다. 🦴✨<br><br>
+            <span style="color: #e94560; font-size: 16px;">(은율아 앞으론 김서린 빙의하지 마라 - 니 친구가)</span>
+        </div>
+        <button class="btn" onclick="resetGame()">다시 놀리기</button>
+    </div>
+
+    <script>
+        let score = 0;
+        const targetScore = 50;
+        let gameInterval;
+        const gameCanvas = document.getElementById('game-canvas');
+        const scoreDisplay = document.getElementById('score');
+
+        // 화면 전환 함수
+        function nextScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // 게임 시작
+        function startGame() {
+            nextScreen('game-screen');
+            score = 0;
+            scoreDisplay.innerText = score;
+            gameCanvas.innerHTML = '';
+            
+            // 0.6초마다 쇄골 아이콘 생성
+            gameInterval = setInterval(spawnBone, 600);
+        }
+
+        // 쇄골 아이콘 생성
+        function spawnBone() {
+            const bone = document.createElement('div');
+            bone.classList.add('falling-bone');
+            
+            // 쇄골 모양 SVG 삽입
+            bone.innerHTML = `
+                <svg viewBox="0 0 100 50" width="100%" height="100%">
+                    <path d="M10,25 Q30,15 50,25 T90,25" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round"/>
+                    <path d="M15,25 Q30,15 50,25 T85,25" fill="none" stroke="#dcdde1" stroke-width="6" stroke-linecap="round"/>
+                </svg>
+            `;
+
+            // 랜덤 위치 및 속도 설정
+            const startX = Math.random() * (gameCanvas.clientWidth - 60);
+            bone.style.left = startX + 'px';
+            bone.style.top = '-50px';
+
+            // 회전각도 랜덤하게 주기
+            const rotation = Math.random() * 360;
+            bone.style.transform = `rotate(${rotation}deg)`;
+
+            gameCanvas.appendChild(bone);
+
+            // 애니메이션 진행 (내려오기)
+            let currentTop = -50;
+            const speed = 3 + Math.random() * 4; // 속도 랜덤
+
+            function fall() {
+                if (!bone.parentElement) return; // 이미 클릭되어 지워진 경우
+
+                currentTop += speed;
+                bone.style.top = currentTop + 'px';
+
+                // 바닥에 닿으면 제거
+                if (currentTop > gameCanvas.clientHeight) {
+                    bone.remove();
+                } else {
+                    requestAnimationFrame(fall);
+                }
+            }
+
+            // 터치/클릭 이벤트
+            const clickEvent = (e) => {
+                e.preventDefault();
+                score++;
+                scoreDisplay.innerText = score;
+                
+                // 클릭 이펙트 (사라지는 애니메이션)
+                bone.style.transform = `scale(0)`;
+                setTimeout(() => bone.remove(), 100);
+
+                // 목표 점수 도달 시 게임 종료 및 엔딩
+                if (score >= targetScore) {
+                    clearInterval(gameInterval);
+                    setTimeout(() => {
+                        nextScreen('ending-screen');
+                    }, 300);
+                }
+            };
+
+            bone.addEventListener('mousedown', clickEvent);
+            bone.addEventListener('touchstart', clickEvent);
+
+            requestAnimationFrame(fall);
+        }
+
+        // 게임 리셋
+        function resetGame() {
+            nextScreen('main-screen');
+        }
+    </script>
+</body>
+</html>
